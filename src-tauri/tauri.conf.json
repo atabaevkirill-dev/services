@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Services",
+  "productName": "Сервис",
   "version": "0.1.0",
   "identifier": "dev.atabaev.services",
   "build": {
@@ -39,13 +39,22 @@
       "csp": null,
       "assetProtocol": {
         "enable": true,
-        "scope": ["$APPDATA/**"]
+        "scope": [
+          "$APPDATA/**"
+        ]
       }
     }
   },
   "bundle": {
     "active": true,
-    "targets": ["msi", "nsis", "dmg", "app", "deb", "appimage"],
+    "targets": [
+      "msi",
+      "nsis",
+      "dmg",
+      "app",
+      "deb",
+      "appimage"
+    ],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -56,8 +65,18 @@
     "windows": {
       "nsis": {
         "installMode": "currentUser",
-        "languages": ["Russian", "English"]
+        "languages": [
+          "Russian",
+          "English"
+        ],
+        "displayLanguageSelector": false
+      },
+      "wix": {
+        "language": [
+          "ru-RU"
+        ]
       }
     }
-  }
+  },
+  "mainBinaryName": "services"
 }
