@@ -1,0 +1,35 @@
+.wg {
+  display: flex; flex-direction: column; height: 100%;
+  background: var(--bg-1); color: var(--text-1);
+  border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.wg__bar {
+  display: flex; align-items: center; gap: 8px; padding: 9px 11px;
+  border-bottom: 1px solid var(--line-soft); background: var(--bg-2);
+  -webkit-user-select: none; user-select: none; cursor: grab;
+}
+.wg__logo { width: 22px; height: 22px; display: grid; place-items: center; border-radius: 7px; background: var(--accent); color: #fff; flex: none; }
+.wg__title { font-size: var(--fs-xs); font-weight: 500; letter-spacing: 0.01em; }
+.wg__btn { width: 24px; height: 24px; display: grid; place-items: center; border: none; border-radius: 6px; background: transparent; color: var(--text-3); cursor: pointer; }
+.wg__btn:hover { background: var(--bg-3); color: var(--text-1); }
+
+.wg__stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line-soft); border-bottom: 1px solid var(--line-soft); }
+.wg__stat { padding: 9px 11px; background: var(--bg-1); }
+.wg__stat span { display: block; font-size: 10px; color: var(--text-3); }
+.wg__stat strong { display: block; margin-top: 2px; font-size: calc(var(--fs-base) + 5px); font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; color: var(--wg-color); }
+
+.wg__list { flex: 1; overflow: auto; }
+.wg__item {
+  display: grid; grid-template-columns: 6px 1fr auto; gap: 9px; align-items: center;
+  width: 100%; padding: 9px 11px; border: none; border-bottom: 1px solid var(--line-soft);
+  background: transparent; color: inherit; text-align: left; cursor: pointer;
+}
+.wg__item:hover { background: var(--bg-hover); }
+.wg__item > span { min-width: 0; overflow: hidden; }
+.wg__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--item-color); }
+.wg__name { display: block; font-size: var(--fs-xs); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wg__meta { display: block; margin-top: 2px; font-size: 10px; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wg__age { display: block; white-space: nowrap; font-size: 10px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.wg__age[data-long='true'] { color: var(--warn); }
+.wg__foot { padding: 8px 11px; border-top: 1px solid var(--line-soft); background: var(--bg-2); }

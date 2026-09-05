@@ -1,0 +1,120 @@
+.reportWrap {
+  position: fixed; inset: 0; z-index: 80; display: flex; flex-direction: column;
+  background: rgb(9 11 16 / 0.86); animation: fade var(--speed) ease-out;
+}
+.report__chrome {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 11px 16px; background: var(--bg-1); border-bottom: 1px solid var(--line);
+}
+.report__chromeTitle { font-size: var(--fs-md); font-weight: 600; }
+
+.report__scroll { flex: 1; min-height: 0; overflow: auto; padding: 22px; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+
+.report__doc { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+
+.rep__page {
+  width: 297mm; height: 210mm; padding: 10mm; box-sizing: border-box;
+  display: flex; flex-direction: column;
+  background: #fff; color: #14181f;
+  font-family: var(--font-ui); font-size: 8.6pt; line-height: 1.4;
+  box-shadow: 0 16px 44px rgb(0 0 0 / 0.45); border-radius: 2px;
+  print-color-adjust: exact; -webkit-print-color-adjust: exact;
+  overflow: hidden;
+}
+.rep__page[data-page='portrait'] { width: 210mm; height: 297mm; }
+
+.rep__pageHead {
+  display: flex; align-items: center; gap: 7px; flex: none;
+  padding-bottom: 5px; margin-bottom: 8px; border-bottom: 1px solid #e8ecf3;
+  font-size: 7.4pt; color: #5b6679;
+}
+.rep__pageLogo { width: 15px; height: 15px; border-radius: 4px; background: #14181f; color: #fff; display: grid; place-items: center; flex: none; }
+.rep__pageName { font-weight: 500; color: #14181f; }
+.rep__pageScope { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rep__pageDate { margin-left: auto; white-space: nowrap; }
+
+.rep__pageBody { flex: 1; min-height: 0; overflow: hidden; }
+
+.rep__pageFoot {
+  flex: none; display: flex; justify-content: space-between; gap: 12px;
+  padding-top: 5px; margin-top: 8px; border-top: 1px solid #e8ecf3;
+  font-size: 7.4pt; color: #8b95a8;
+}
+
+.rep__probe, .rep__measure { position: absolute; left: -10000px; top: 0; visibility: hidden; pointer-events: none; }
+.rep__measure { width: 277mm; font-family: var(--font-ui); font-size: 8.6pt; line-height: 1.4; color: #14181f; }
+.rep__measure[data-page='portrait'] { width: 190mm; }
+
+.rep__cover { margin-bottom: 10px; }
+
+.rep__head { display: flex; align-items: flex-end; gap: 14px; padding-bottom: 9px; border-bottom: 2px solid #14181f; }
+.rep__logo { width: 26px; height: 26px; border-radius: 7px; background: #14181f; color: #fff; display: grid; place-items: center; flex: none; }
+.rep__title { margin: 0; font-size: 15pt; font-weight: 600; letter-spacing: -0.01em; }
+.rep__sub { margin: 2px 0 0; font-size: 8pt; color: #5b6679; }
+.rep__meta { margin-left: auto; text-align: right; font-size: 8pt; color: #5b6679; }
+
+.rep__summary { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 12px; }
+.rep__sum {
+  display: inline-flex; align-items: baseline; gap: 6px; padding: 4px 9px;
+  border: 1px solid #dfe4ec; border-radius: 5px; background: #f8fafc; font-size: 8pt;
+}
+.rep__sum b { font-size: 11pt; font-weight: 600; }
+
+.rep__table { width: 100%; border-collapse: collapse; }
+.rep__table th {
+  padding: 6px 7px; text-align: left; font-size: 7.4pt; font-weight: 500; text-transform: uppercase;
+  letter-spacing: 0.05em; color: #5b6679; background: #f1f4f9; border-bottom: 1px solid #cfd6e2;
+}
+.rep__table td { padding: 6px 7px; border-bottom: 1px solid #e8ecf3; vertical-align: top; }
+.rep__table tbody tr:nth-child(even) td { background: #fafbfd; }
+.rep__num { font-family: var(--font-mono); font-size: 7.6pt; color: #5b6679; white-space: nowrap; }
+.rep__main { font-weight: 500; }
+.rep__note { margin-top: 1px; font-size: 7.6pt; color: #5b6679; }
+.rep__date { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rep__days { font-size: 7.6pt; color: #5b6679; }
+.rep__days[data-long='true'] { color: #b45309; font-weight: 500; }
+
+.rep__badge {
+  display: inline-flex; align-items: center; gap: 5px; padding: 2px 7px; border-radius: 99px;
+  font-size: 7.6pt; font-weight: 500; white-space: nowrap;
+  background: color-mix(in srgb, var(--c) 14%, #fff); color: var(--c); border: 1px solid color-mix(in srgb, var(--c) 35%, #fff);
+}
+.rep__dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+.rep__card { margin-top: 12px; padding-top: 10px; border-top: 1px solid #e8ecf3; break-inside: avoid; page-break-inside: avoid; }
+.rep__cardHead { display: flex; align-items: baseline; gap: 8px; margin-bottom: 7px; }
+.rep__cardTitle { font-size: 10pt; font-weight: 600; margin: 0; }
+.rep__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3px 18px; margin-bottom: 8px; }
+.rep__row { display: grid; grid-template-columns: 120px 1fr; gap: 8px; font-size: 8pt; }
+.rep__key { color: #5b6679; }
+.rep__sec { margin-top: 6px; font-size: 7.4pt; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; color: #5b6679; }
+.rep__tl { display: grid; gap: 3px; margin-top: 4px; }
+.rep__tlRow { display: grid; grid-template-columns: 108px 1fr; gap: 8px; font-size: 8pt; }
+.rep__tlDate { color: #5b6679; font-variant-numeric: tabular-nums; }
+.rep__files { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+.rep__file { padding: 2px 7px; border: 1px solid #dfe4ec; border-radius: 4px; background: #f8fafc; font-size: 7.6pt; }
+.rep__foot { margin-top: 14px; padding-top: 7px; border-top: 1px solid #e8ecf3; display: flex; font-size: 7.4pt; color: #8b95a8; }
+
+@media print {
+  html, body { height: auto !important; overflow: visible !important; background: #fff !important; }
+  body * { visibility: hidden !important; }
+  .report__doc, .report__doc * { visibility: visible !important; }
+
+  .shell { display: block !important; height: auto !important; overflow: visible !important; }
+  .main, .content { overflow: visible !important; height: auto !important; }
+  .drawer, .modal__backdrop, .lb, .report__chrome, .rep__probe, .rep__measure { display: none !important; }
+
+  .reportWrap { position: static !important; display: block !important; background: none !important; }
+  .report__scroll { display: block !important; overflow: visible !important; padding: 0 !important; gap: 0 !important; }
+  .report__doc { display: block !important; gap: 0 !important; }
+
+  .rep__page {
+    width: 100% !important; height: 209.4mm !important; min-height: 0 !important;
+    margin: 0 !important; padding: 10mm !important;
+    box-shadow: none !important; border-radius: 0 !important; overflow: hidden !important;
+    break-after: page; page-break-after: always;
+  }
+  .rep__page[data-page='portrait'] { height: 296.4mm !important; }
+  .rep__page:last-child { break-after: auto; page-break-after: auto; }
+  .rep__pageBody { overflow: visible !important; }
+}
