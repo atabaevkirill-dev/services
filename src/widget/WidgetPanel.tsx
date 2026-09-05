@@ -5,6 +5,7 @@ import { useRepairs } from '../repairs/store'
 import { STATUS_META } from '../repairs/types'
 import { daysSince } from '../lib/date'
 import { openMainWindow } from '../lib/shell'
+import { subscribeChanges } from '../lib/sync'
 import './widget.css'
 
 export function WidgetPanel() {
@@ -13,8 +14,15 @@ export function WidgetPanel() {
 
   useEffect(() => {
     void load()
-    const timer = window.setInterval(() => void load(), 30_000)
-    return () => window.clearInterval(timer)
+    const timer = window.setInterval(() => void load(), 60_000)
+    let stop = () => undefined as void
+    void subscribeChanges({ onChanged: () => void load() }).then((off) => {
+      stop = off
+    })
+    return () => {
+      window.clearInterval(timer)
+      stop()
+    }
   }, [load])
 
   const active = useMemo(

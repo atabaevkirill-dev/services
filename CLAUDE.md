@@ -6,10 +6,11 @@
 ## Команды
 
 ```bash
-npm run dev      # дев-сервер на http://localhost:5180 (главное окно)
-                 # виджет отдельно: http://localhost:5180/widget.html
-npm run build    # tsc --noEmit + сборка в dist/
-npm run preview  # просмотр собранного
+npm run dev          # дев-сервер на http://localhost:5180 (главное окно)
+                     # виджет отдельно: http://localhost:5180/widget.html
+npm run build        # tsc --noEmit + сборка в dist/
+npm run tauri dev    # настольное приложение с горячей перезагрузкой
+npm run tauri build  # установщик для текущей системы
 ```
 
 Проверять изменения нужно и сборкой (`npm run build`), и глазами в браузере: значительная
@@ -28,7 +29,12 @@ npm run preview  # просмотр собранного
 - `src/repairs/store.ts` — Zustand-стор: список, фильтры, выбор, вложения, экспорт
 - `src/repairs/repo.mock.ts` — браузерная реализация: метаданные в localStorage,
   содержимое файлов в IndexedDB (`src/lib/blobstore.ts`), иначе видео не помещается
-- `src/repairs/repo.sqlite.ts` — заглушка, заполняется на этапе Tauri
+- `src/repairs/repo.sqlite.ts` — настольная реализация: SQLite через `tauri-plugin-sql`,
+  файлы в подпапке `files` каталога данных, наружу отдаются asset-ссылки
+- `src/repairs/demo.ts` — демонстрационный набор, общий для обеих реализаций
+- `src-tauri/src/lib.rs` — окна, трей, миграции SQL, команды `show_main_window`,
+  `toggle_widget`, `notify_changed`; после каждой мутации окна синхронизируются
+  событием `repairs:changed` (подписка — `src/lib/sync.ts`)
 - `src/theme/tokens.css` — все переменные оформления; тема, гамма, шрифт, плотность,
   скругление применяются через `ThemeProvider` на `:root`
 - `src/settings/store.ts` — настройки (persist в localStorage)
@@ -48,5 +54,6 @@ npm run preview  # просмотр собранного
 
 - `src/lib/ocr.ts` — автозаполнение заявки из скана акта (PDF), пока `NotImplementedError`
 - `src/lib/transcode.ts` — приведение видео к mp4 через ffmpeg в десктопной сборке
-- `src/repairs/repo.sqlite.ts` + `src-tauri/` — оболочка Tauri, SQLite, два окна, трей
-- `src/lib/download.ts` — в Tauri заменить «Загрузки» на системный диалог сохранения
+- Настольная сборка ни разу не запускалась на живой машине — проверить окна, трей и SQLite
+- Настройки оформления по-прежнему в `localStorage`; в Tauri он переживает перезапуск,
+  но при переносе на другую машину не переезжает

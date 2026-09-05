@@ -9,6 +9,7 @@ import { RepairForm } from '../repairs/RepairForm'
 import { countByFilter } from '../repairs/filters'
 import { STATUS_META, STATUSES } from '../repairs/types'
 import { daysSince } from '../lib/date'
+import { subscribeChanges } from '../lib/sync'
 import { StatsPage } from './StatsPage'
 import { Report } from '../export/Report'
 import { exportToExcel } from '../export/excel'
@@ -36,7 +37,18 @@ export function App() {
 
   useEffect(() => {
     void load()
-  }, [load])
+    let stop = () => undefined as void
+    void subscribeChanges({
+      onChanged: () => void load(),
+      onOpen: (id) => {
+        setPage('repairs')
+        void select(id)
+      },
+    }).then((off) => {
+      stop = off
+    })
+    return () => stop()
+  }, [load, select])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
