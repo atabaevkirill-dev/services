@@ -357,3 +357,126 @@
 .actView img { width: 100%; height: 100%; object-fit: contain; }
 .actView__link { display: flex; align-items: center; gap: 10px; margin: 10px 0 0; font-size: var(--fs-xs); color: var(--text-3); }
 .actView__link a { color: var(--accent); }
+
+/* ── Файловый менеджер заявки ─────────────────────────────────────────────── */
+
+.fm__bar { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+.fm__search { position: relative; display: flex; align-items: center; flex: 1; min-width: 190px; }
+.fm__search > svg { position: absolute; left: 10px; color: var(--text-3); pointer-events: none; }
+.fm__search .input { padding-left: 29px; padding-right: 28px; }
+.fm__clear {
+  position: absolute; right: 5px; width: 20px; height: 20px; display: grid; place-items: center;
+  border: none; border-radius: 5px; background: transparent; color: var(--text-3); cursor: pointer;
+}
+.fm__clear:hover { background: var(--bg-3); color: var(--text-1); }
+
+.fm__scopes { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+
+.fm__bulk {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; padding: 6px 9px;
+  border-radius: var(--radius-sm); background: rgb(var(--accent-rgb) / var(--tint));
+  color: var(--accent); font-size: var(--fs-xs);
+}
+
+.fm__list { display: grid; gap: 6px; }
+.fm__row { grid-template-columns: auto minmax(0, 1fr) auto; }
+.fm__row[data-on='true'] { border-color: rgb(var(--accent-rgb) / 0.45); }
+.fm__check { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; }
+.fm__pick {
+  display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 9px; align-items: center;
+  min-width: 0; padding: 0; border: none; background: none; color: inherit; font: inherit;
+  text-align: left; cursor: pointer;
+}
+.fm__pick:hover .doc__name { color: var(--accent); }
+
+.fm__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
+.fm__tile {
+  position: relative; overflow: hidden; background: var(--bg-2);
+  border: 1px solid var(--line); border-radius: var(--radius-sm);
+}
+.fm__tile[data-on='true'] { border-color: rgb(var(--accent-rgb) / 0.5); }
+.fm__check--tile { position: absolute; top: 6px; left: 6px; z-index: 1; }
+.fm__tileBody {
+  display: grid; gap: 3px; width: 100%; padding: 0 0 8px; border: none;
+  background: none; color: inherit; font: inherit; text-align: center; cursor: pointer;
+}
+.fm__thumb { display: grid; place-items: center; aspect-ratio: 1; background: var(--bg-3); color: var(--text-3); overflow: hidden; }
+.fm__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fm__tileName { padding: 0 7px; font-size: var(--fs-xs); color: var(--text-1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fm__tileMeta { padding: 0 7px; font-size: var(--fs-xs); color: var(--text-3); }
+
+.fm__preview { margin-top: 10px; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-2); }
+.fm__previewHead { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+.fm__previewName { min-width: 0; font-size: var(--fs-sm); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fm__previewMeta {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 6px 9px;
+  border-top: 1px solid var(--line); font-size: var(--fs-xs); color: var(--text-3);
+}
+.fm__path { max-width: 100%; font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.doc__act[data-on='true'] { color: var(--accent); }
+.doc__act--danger:hover { background: color-mix(in srgb, var(--danger) 16%, transparent); color: var(--danger); }
+
+/* Панель менеджера в узкой карточке: разделы уезжают вбок, а не переносятся */
+.fm__scopes { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; align-items: center; }
+.fm__scopes::-webkit-scrollbar { display: none; }
+.fm__scopes .chip { flex: none; }
+.fm__scopesEnd { flex: 1; min-width: 8px; }
+.fm__bar .select { width: auto; min-width: 104px; flex: none; }
+.fm__previewActs { display: flex; align-items: center; gap: 2px; padding: 5px 7px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.fm__row .doc__meta { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── Просмотр файла внутри приложения ─────────────────────────────────────── */
+
+.fv--media { position: relative; }
+.fv--media img { display: block; width: 100%; max-height: min(74vh, 720px); object-fit: contain; background: #05070b; }
+.fv--media[data-compact='true'] img { max-height: 340px; }
+
+.fv__frame { display: block; width: 100%; height: min(74vh, 720px); border: none; background: #fff; }
+.fv__frame[data-compact='true'] { height: min(50vh, 440px); }
+
+.fv__note { padding: 26px 14px; text-align: center; color: var(--text-3); font-size: var(--fs-sm); }
+.fv__none { display: grid; place-items: center; gap: 6px; padding: 26px 14px; text-align: center; color: var(--text-2); font-size: var(--fs-sm); }
+
+/* Word, RTF, ODT — лист документа, всегда светлый, как на печати */
+.fv__doc {
+  max-height: min(74vh, 720px); overflow: auto; padding: 22px 26px;
+  background: #fff; color: #14181f; font-size: var(--fs-sm); line-height: 1.6;
+}
+.fv__doc[data-compact='true'] { max-height: 340px; padding: 14px 16px; }
+.fv__doc :is(h1, h2, h3, h4, h5, h6) { margin: 14px 0 6px; line-height: 1.3; }
+.fv__doc p { margin: 0 0 8px; }
+.fv__doc img { max-width: 100%; height: auto; }
+.fv__doc table { border-collapse: collapse; margin: 8px 0; width: 100%; }
+.fv__doc :is(td, th) { border: 1px solid #d9dee8; padding: 4px 7px; text-align: left; vertical-align: top; }
+.fv__doc :is(ul, ol) { margin: 0 0 8px; padding-left: 22px; }
+.fv__doc a { color: #2c5cc5; }
+
+.fv__text {
+  max-height: min(74vh, 720px); overflow: auto; margin: 0; padding: 14px 16px;
+  background: var(--bg-2); color: var(--text-1);
+  font-family: var(--font-mono); font-size: var(--fs-xs); line-height: 1.55;
+  white-space: pre-wrap; word-break: break-word;
+}
+.fv__text[data-compact='true'] { max-height: 320px; }
+
+/* Таблица: ярлычки листов снизу, как в редакторе */
+.fv__sheet { display: flex; flex-direction: column; min-height: 0; }
+.fv__sheetScroll { overflow: auto; max-height: min(68vh, 640px); background: var(--bg-2); }
+.fv__sheet[data-compact='true'] .fv__sheetScroll { max-height: 300px; }
+.fv__table { border-collapse: collapse; font-size: var(--fs-xs); white-space: nowrap; }
+.fv__table :is(th, td) { border: 1px solid var(--line); padding: 3px 8px; text-align: left; }
+.fv__table th { position: sticky; top: 0; z-index: 1; background: var(--bg-3); color: var(--text-1); font-weight: 500; }
+.fv__table td { color: var(--text-2); }
+.fv__rowNum { position: sticky; left: 0; background: var(--bg-3); color: var(--text-3); text-align: right !important; font-variant-numeric: tabular-nums; }
+.fv__tabs { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 7px 9px; border-top: 1px solid var(--line); }
+
+.fv__list { max-height: min(70vh, 660px); overflow: auto; }
+.fv__list[data-compact='true'] { max-height: 300px; }
+.fv__listHead { padding: 8px 10px; border-bottom: 1px solid var(--line); font-size: var(--fs-xs); color: var(--text-3); }
+.fv__listRow { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 5px 10px; font-size: var(--fs-xs); color: var(--text-2); }
+.fv__listRow svg { color: var(--text-3); }
+.fv__listName { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Окно просмотра во весь экран */
+.fv__stage { border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-2); }

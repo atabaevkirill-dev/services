@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Button, DropZone, Field, Icon, Modal } from '../ui'
-import { Attachments } from './Attachments'
+import { FileManager } from './FileManager'
 import { KIND_COLOR, KIND_LABEL, formatSize, kindOf } from './types'
 import { fromDateInput, toDateInput } from '../lib/date'
 import { STATUSES, STATUS_META, emptyDraft, type Repair, type RepairDraft, type RepairStatus } from './types'
@@ -141,7 +141,7 @@ export function RepairForm({ initial, onClose, onSubmit }: Props) {
             <Icon name="paperclip" size={13} /> Файлы
           </h3>
           {initial ? (
-            <Attachments repairId={initial.id} />
+            <FileManager repairId={initial.id} />
           ) : (
             <>
               {pending.length > 0 && (

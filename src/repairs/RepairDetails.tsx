@@ -3,7 +3,7 @@ import { Button, EmptyState, Icon } from '../ui'
 import { useSettings } from '../settings/store'
 import { useRepairs } from './store'
 import { RepairForm } from './RepairForm'
-import { Attachments, CoverMedia } from './Attachments'
+import { CoverMedia, FileManager } from './FileManager'
 import { STATUSES, STATUS_META, type Repair, type RepairStatus } from './types'
 import { daysLabel, daysSince, formatDate, formatDateTime } from '../lib/date'
 
@@ -105,7 +105,7 @@ export function RepairDetails({ repair }: { repair: Repair }) {
           </p>
         </div>
 
-        <Attachments repairId={repair.id} />
+        <FileManager repairId={repair.id} />
 
         <div className="section">
           <h3 className="section__title">

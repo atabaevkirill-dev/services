@@ -29,9 +29,19 @@
     "fs:allow-mkdir",
     "fs:allow-write-file",
     "fs:allow-read-file",
+    {
+      "identifier": "fs:allow-copy-file",
+      "allow": [{ "path": "$APPDATA/files/**" }]
+    },
     "fs:allow-remove",
     "opener:default",
-    "opener:allow-open-path",
-    "opener:allow-reveal-item-in-dir"
+    {
+      "identifier": "opener:allow-open-path",
+      "allow": [{ "path": "$APPDATA/files/**" }]
+    },
+    {
+      "identifier": "opener:allow-reveal-item-in-dir",
+      "allow": [{ "path": "$APPDATA/files/**" }]
+    }
   ]
 }

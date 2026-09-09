@@ -85,6 +85,7 @@ export async function createSqliteRepo(): Promise<RepairRepo> {
       size: Number(r.size ?? 0),
       src: await fileUrl(String(r.stored_as)),
       preview: r.preview_as ? await fileUrl(String(r.preview_as)) : '',
+      path: await path.join(filesDir, String(r.stored_as)),
       caption: str(r.caption),
       addedAt: String(r.added_at),
     }

@@ -123,3 +123,8 @@
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 1ms !important; transition-duration: 1ms !important; }
 }
+
+/* Компактные варианты полей — для панели инструментов файлового менеджера */
+.input--sm, .select--sm { height: 28px; font-size: var(--fs-xs); }
+.select--sm { padding-right: 26px; background-position: calc(100% - 15px) 12px, calc(100% - 10px) 12px; }
+.chip--sm { height: 24px; padding: 0 9px; }

@@ -97,12 +97,15 @@
 
 @media print {
   html, body { height: auto !important; overflow: visible !important; background: #fff !important; }
-  body * { visibility: hidden !important; }
-  .report__doc, .report__doc * { visibility: visible !important; }
-
+  /*
+   * Печатается только отчёт. Интерфейс именно убирается из потока, а не прячется
+   * прозрачностью: скрытый через visibility он продолжает занимать место и выходит
+   * перед отчётом пустыми листами.
+   */
   .shell { display: block !important; height: auto !important; overflow: visible !important; }
-  .main, .content { overflow: visible !important; height: auto !important; }
-  .drawer, .modal__backdrop, .lb, .report__chrome, .rep__probe, .rep__measure { display: none !important; }
+  .shell > * { display: none !important; }
+  .shell > .reportWrap { display: block !important; }
+  .modal__backdrop, .lb, .report__chrome, .rep__probe, .rep__measure { display: none !important; }
 
   .reportWrap { position: static !important; display: block !important; background: none !important; }
   .report__scroll { display: block !important; overflow: visible !important; padding: 0 !important; gap: 0 !important; }

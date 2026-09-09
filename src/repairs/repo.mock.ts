@@ -208,6 +208,7 @@ export function createMockRepo(): RepairRepo {
         size: file.size,
         src: '',
         preview: '',
+        path: null,
         caption: null,
         addedAt: new Date().toISOString(),
       }
