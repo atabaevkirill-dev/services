@@ -13,3 +13,6 @@ npm-debug.log*
 .idea
 .vscode/*
 !.vscode/extensions.json
+
+# кладётся скриптом copy-pdfjs перед dev и build
+public/pdfjs/

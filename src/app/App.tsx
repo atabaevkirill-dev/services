@@ -13,6 +13,9 @@ import { subscribeChanges } from '../lib/sync'
 import { StatsPage } from './StatsPage'
 import { Report } from '../export/Report'
 import { exportToExcel } from '../export/excel'
+import { applyExtract } from '../akt/pipeline'
+import { useActOptions } from '../akt/options'
+import { useActResult } from '../akt/result'
 import type { ExportBundle } from '../repairs/repo'
 import './app.css'
 
@@ -30,6 +33,8 @@ export function App() {
   const [report, setReport] = useState<{ bundle: ExportBundle; scope: string } | null>(null)
   const [exporting, setExporting] = useState(false)
   const { themeMode, set: setSetting, longRepairDays } = useSettings()
+  const actOptions = useActOptions()
+  const putActResult = useActResult((s) => s.put)
   const {
     items, load, loading, error, query, setQuery, filter, setFilter, selectedId,
     create, addAttachment, select, checked, setChecked, bundle,
@@ -264,10 +269,40 @@ export function App() {
       {creating && (
         <RepairForm
           onClose={() => setCreating(false)}
-          onSubmit={async (draft, files) => {
+          onSubmit={async (draft, files, act) => {
             const repair = await create(draft)
+            if (act) await addAttachment(repair.id, act.file, 'act')
             for (const file of files) await addAttachment(repair.id, file)
             await select(repair.id)
+            // акт уже распознан в форме: здесь остаются документы, папка
+            // и заявки на остальные приборы
+            if (act) {
+              try {
+                putActResult(repair.id, {
+                  kind: 'running',
+                  stage: 'Готовлю документы',
+                  fileName: act.file.name,
+                })
+                const result = await applyExtract(
+                  {
+                    repairId: repair.id,
+                    actBytes: act.bytes,
+                    actFileName: act.file.name,
+                    actMime: act.file.type,
+                    extract: act.extract,
+                    fillCurrent: false,
+                  },
+                  actOptions,
+                  (stage) => putActResult(repair.id, { kind: 'running', stage, fileName: act.file.name }),
+                )
+                putActResult(repair.id, { kind: 'done', result })
+              } catch (e) {
+                putActResult(repair.id, {
+                  kind: 'error',
+                  message: e instanceof Error ? e.message : 'Не удалось обработать акт',
+                })
+              }
+            }
           }}
         />
       )}

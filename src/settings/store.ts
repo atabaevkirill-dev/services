@@ -27,6 +27,21 @@ export interface Settings {
   stampPosition: StampPosition
   showLocation: boolean
   showNotes: boolean
+
+  /** Папка, куда складываются папки актов с документами Word и страницами скана. */
+  aktSavePath: string
+  /** Запускать распознавание сразу, как файл помечен входным актом. */
+  aktAutoRecognize: boolean
+  /** Заводить отдельные заявки на остальные приборы из акта. */
+  aktCreateRepairs: boolean
+  /** Подставлять номер акта номером заявки. */
+  aktNumberFromAct: boolean
+  visionProvider: 'ollama' | 'openai'
+  ollamaUrl: string
+  ollamaModel: string
+  openaiBaseUrl: string
+  openaiKey: string
+  openaiModel: string
 }
 
 export const DEFAULTS: Settings = {
@@ -51,6 +66,17 @@ export const DEFAULTS: Settings = {
   stampPosition: 'br',
   showLocation: true,
   showNotes: true,
+
+  aktSavePath: '',
+  aktAutoRecognize: true,
+  aktCreateRepairs: true,
+  aktNumberFromAct: true,
+  visionProvider: 'ollama',
+  ollamaUrl: 'http://localhost:11434',
+  ollamaModel: 'qwen2.5vl:7b',
+  openaiBaseUrl: '',
+  openaiKey: '',
+  openaiModel: '',
 }
 
 interface SettingsState extends Settings {

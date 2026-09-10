@@ -62,3 +62,10 @@ export async function copyLocation(file: Attachment): Promise<string> {
   await navigator.clipboard.writeText(value)
   return file.path ? 'Путь скопирован' : 'Ссылка скопирована'
 }
+
+/** Открывает папку в проводнике. Путь выбирает пользователь в настройках. */
+export async function openFolder(folder: string): Promise<void> {
+  if (!isTauri()) throw new Error('Открыть папку можно только в настольной сборке')
+  const { openPath } = await import('@tauri-apps/plugin-opener')
+  await openPath(folder)
+}

@@ -26,8 +26,8 @@ interface RepairsState {
   update(id: number, patch: Partial<RepairDraft>): Promise<void>
   setStatus(id: number, status: RepairStatus, comment?: string): Promise<void>
   remove(id: number): Promise<void>
-  addAttachment(id: number, file: File, category?: AttachmentCategory): Promise<void>
-  setCategory(attachmentId: number, category: AttachmentCategory): Promise<void>
+  addAttachment(id: number, file: File, category?: AttachmentCategory): Promise<Attachment>
+  setCategory(attachmentId: number, category: AttachmentCategory): Promise<Attachment>
   removeAttachment(attachmentId: number): Promise<void>
   clearAll(): Promise<void>
   seedDemo(): Promise<void>
@@ -107,14 +107,16 @@ export const useRepairs = create<RepairsState>()((set, get) => ({
 
   async addAttachment(id, file, category) {
     const repo = await getRepo()
-    await repo.addAttachment(id, file, category)
+    const added = await repo.addAttachment(id, file, category)
     await Promise.all([get().refreshDetails(), get().load()])
+    return added
   },
 
   async setCategory(attachmentId, category) {
     const repo = await getRepo()
-    await repo.setCategory(attachmentId, category)
+    const changed = await repo.setCategory(attachmentId, category)
     await Promise.all([get().refreshDetails(), get().load()])
+    return changed
   },
 
   async removeAttachment(attachmentId) {

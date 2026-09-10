@@ -2,12 +2,16 @@ import { useEffect, useMemo, useState } from 'react'
 import { DropZone, FILE_ACCEPT, EmptyState, Icon, Lightbox, Modal } from '../ui'
 import { useRepairs } from './store'
 
-import { recognizeFromScan } from '../lib/ocr'
-import { canRevealInFolder, copyLocation, openExternally, revealInFolder, saveCopy } from '../lib/files'
+import { canRevealInFolder, copyLocation, openExternally, openFolder, revealInFolder, saveCopy } from '../lib/files'
 import { MediaStamp } from './MediaStamp'
 import { VideoPlayer } from './VideoPlayer'
 import { SafeImage } from './SafeImage'
 import { FileView } from './FileView'
+import { useSettings } from '../settings/store'
+import { useActOptions } from '../akt/options'
+import { useActResult } from '../akt/result'
+import { runAct } from '../akt/pipeline'
+import { ActPanel, type ActState } from '../akt/ActPanel'
 import {
   CATEGORY_LABEL,
   KIND_COLOR,
@@ -66,6 +70,11 @@ export function FileManager({ repairId }: { repairId: number }) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [note, setNote] = useState('')
+  const [akt, setAkt] = useState<ActState | null>(null)
+  const settings = useSettings()
+  const actOptions = useActOptions()
+  const pendingAct = useActResult((s) => s.pending)
+  const takeActResult = useActResult((s) => s.take)
 
   const counts = useMemo(() => {
     const map: Record<Scope, number> = { all: files.length, act: 0, media: 0, doc: 0 }
@@ -85,6 +94,13 @@ export function FileManager({ repairId }: { repairId: number }) {
 
   const media = useMemo(() => visible.filter((f) => f.kind === 'image' || f.kind === 'video'), [visible])
   const selected = visible.find((f) => f.id === selectedId) ?? null
+
+  // акт мог распознаться ещё в форме создания — забираем его итог, когда он придёт
+  useEffect(() => {
+    if (pendingAct?.repairId !== repairId) return
+    const state = takeActResult(repairId)
+    if (state) setAkt(state)
+  }, [pendingAct, repairId, takeActResult])
 
   // файл мог исчезнуть после удаления — снимаем мёртвое выделение, не трогая живое
   useEffect(() => {
@@ -118,29 +134,41 @@ export function FileManager({ repairId }: { repairId: number }) {
     setBusy(true)
     setError('')
     setNote('')
+    let act: Attachment | null = null
     try {
       for (const file of list) {
-        // в разделе акта пробуем заполнить поля заявки из скана, файл прикрепляем в любом случае
-        if (scope === 'act') {
-          try {
-            await recognizeFromScan(file)
-          } catch (e) {
-            setNote(e instanceof Error ? e.message : 'Распознавание пока недоступно')
-          }
-        }
-        await addAttachment(repairId, file, scope === 'all' ? undefined : scope)
+        const added = await addAttachment(repairId, file, scope === 'all' ? undefined : scope)
+        if (!act && added.category === 'act') act = added
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Не удалось прикрепить файл')
     } finally {
       setBusy(false)
     }
+    // распознавание запускаем после загрузки: оно долгое, а файл уже на месте
+    if (act && settings.aktAutoRecognize) await recognizeAct(act)
+  }
+
+  /** Распознавание входного акта: заполняет заявку и собирает документы. */
+  const recognizeAct = async (file: Attachment) => {
+    setError('')
+    setAkt({ kind: 'running', stage: 'Готовлюсь', fileName: file.fileName })
+    try {
+      const result = await runAct(repairId, file, actOptions, (stage) =>
+        setAkt({ kind: 'running', stage, fileName: file.fileName }),
+      )
+      setAkt({ kind: 'done', result })
+    } catch (e) {
+      setAkt({ kind: 'error', message: e instanceof Error ? e.message : 'Неизвестная ошибка' })
+    }
   }
 
   const moveChecked = (category: AttachmentCategory) =>
     run(async () => {
-      for (const id of checked) await setCategory(id, category)
+      const changed = await Promise.all(checked.map((id) => setCategory(id, category)))
       setChecked([])
+      const act = changed.find((f) => f.category === 'act')
+      if (act && settings.aktAutoRecognize) void recognizeAct(act)
     }, `Перенесено в раздел «${CATEGORY_LABEL[category]}»`)
 
   const removeChecked = () =>
@@ -244,6 +272,14 @@ export function FileManager({ repairId }: { repairId: number }) {
         </div>
       )}
 
+      {akt && (
+        <ActPanel
+          state={akt}
+          onClose={() => setAkt(null)}
+          onOpenFolder={(folder) => void run(() => openFolder(folder))}
+        />
+      )}
+
       {visible.length === 0 ? (
         <EmptyState
           icon="folder"
@@ -287,6 +323,7 @@ export function FileManager({ repairId }: { repairId: number }) {
           repair={repair}
           onOpen={() => openViewer(selected)}
           onAction={run}
+          onRecognize={selected.category === 'act' ? () => void recognizeAct(selected) : undefined}
           onClose={() => setSelectedId(null)}
         />
       )}
@@ -407,10 +444,12 @@ function FileActions({
   file,
   onOpen,
   onAction,
+  onRecognize,
 }: {
   file: Attachment
   onOpen: () => void
   onAction: (action: () => Promise<void>, done?: string) => Promise<void>
+  onRecognize?: () => void
 }) {
   const { removeAttachment, setCategory } = useRepairs()
   const [copied, setCopied] = useState('')
@@ -426,6 +465,11 @@ function FileActions({
 
   return (
     <>
+      {onRecognize && (
+        <button className="doc__act" onClick={onRecognize} title="Распознать акт заново" aria-label="Распознать акт заново">
+          <Icon name="scan" size={13} />
+        </button>
+      )}
       <button className="doc__act" onClick={onOpen} title="Просмотр" aria-label="Просмотр">
         <Icon name="zoomIn" size={13} />
       </button>
@@ -584,12 +628,14 @@ function FilePreview({
   repair,
   onOpen,
   onAction,
+  onRecognize,
   onClose,
 }: {
   file: Attachment
   repair: Repair | null
   onOpen: () => void
   onAction: (action: () => Promise<void>, done?: string) => Promise<void>
+  onRecognize?: () => void
   onClose: () => void
 }) {
   return (
@@ -608,7 +654,7 @@ function FilePreview({
       </div>
 
       <div className="fm__previewActs">
-        <FileActions file={file} onOpen={onOpen} onAction={onAction} />
+        <FileActions file={file} onOpen={onOpen} onAction={onAction} onRecognize={onRecognize} />
       </div>
 
       <div className="fm__previewBody">

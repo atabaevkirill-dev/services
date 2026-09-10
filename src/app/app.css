@@ -480,3 +480,36 @@
 
 /* Окно просмотра во весь экран */
 .fv__stage { border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-2); }
+
+/* ── Распознавание входного акта ──────────────────────────────────────────── */
+
+.akt {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 9px; align-items: start;
+  margin-bottom: 10px; padding: 9px 11px; border-radius: var(--radius-sm);
+  border: 1px solid var(--line); font-size: var(--fs-xs); line-height: 1.5;
+}
+.akt--work { border-color: rgb(var(--accent-rgb) / 0.45); background: rgb(var(--accent-rgb) / var(--tint)); color: var(--accent); }
+.akt--ok { border-color: color-mix(in srgb, var(--st-done) 45%, transparent); background: color-mix(in srgb, var(--st-done) var(--tint), transparent); color: var(--text-1); }
+.akt--ok > svg { color: var(--st-done); }
+.akt--bad { border-color: var(--danger); background: color-mix(in srgb, var(--danger) var(--tint), transparent); color: var(--text-1); }
+.akt--bad > svg { color: var(--danger); }
+
+.akt__body { display: grid; gap: 3px; min-width: 0; }
+.akt__title { font-weight: 500; }
+.akt__note { color: var(--text-3); }
+.akt--work .akt__note { color: color-mix(in srgb, var(--accent) 70%, var(--text-3)); }
+.akt__warn { display: flex; align-items: flex-start; gap: 5px; color: var(--warn); }
+.akt__warn svg { flex: none; margin-top: 2px; }
+
+.akt__folder { display: flex; align-items: center; gap: 8px; margin-top: 4px; min-width: 0; }
+.akt__path { font-family: var(--font-mono); color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.akt__spin {
+  width: 15px; height: 15px; margin-top: 1px; border-radius: 50%;
+  border: 2px solid rgb(var(--accent-rgb) / 0.25); border-top-color: var(--accent);
+  animation: aktSpin 0.8s linear infinite;
+}
+@keyframes aktSpin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .akt__spin { animation-duration: 2.4s; } }
+.akt__ok { color: var(--st-done); }
+.akt__bad { color: var(--danger); }

@@ -1,6 +1,12 @@
 import { useState } from 'react'
 import { Button, DropZone, Field, Icon, Modal } from '../ui'
 import { FileManager } from './FileManager'
+import { useSettings } from '../settings/store'
+import { useActOptions } from '../akt/options'
+import { extractAct } from '../akt/extract'
+import { draftFromDevice } from '../akt/pipeline'
+import { ActPanel, type ActState } from '../akt/ActPanel'
+import type { ActExtract } from '../akt/types'
 import { KIND_COLOR, KIND_LABEL, formatSize, kindOf } from './types'
 import { fromDateInput, toDateInput } from '../lib/date'
 import { STATUSES, STATUS_META, emptyDraft, type Repair, type RepairDraft, type RepairStatus } from './types'
@@ -8,8 +14,16 @@ import { STATUSES, STATUS_META, emptyDraft, type Repair, type RepairDraft, type 
 interface Props {
   initial?: Repair
   onClose: () => void
-  /** Для новой заявки вторым аргументом приходят файлы, выбранные до сохранения. */
-  onSubmit: (draft: RepairDraft, files: File[]) => Promise<void>
+  /** Для новой заявки вторым аргументом приходят файлы, выбранные до сохранения,
+   *  третьим — распознанный входной акт, если он был загружен. */
+  onSubmit: (draft: RepairDraft, files: File[], act?: RecognizedAct) => Promise<void>
+}
+
+/** Распознанный акт, который ждёт создания заявки. */
+export interface RecognizedAct {
+  file: File
+  bytes: Uint8Array
+  extract: ActExtract
 }
 
 export function RepairForm({ initial, onClose, onSubmit }: Props) {
@@ -33,9 +47,43 @@ export function RepairForm({ initial, onClose, onSubmit }: Props) {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [pending, setPending] = useState<File[]>([])
+  const [act, setAct] = useState<RecognizedAct | null>(null)
+  const [aktState, setAktState] = useState<ActState | null>(null)
+  const settings = useSettings()
+  const actOptions = useActOptions()
 
   const patch = <K extends keyof RepairDraft>(key: K, value: RepairDraft[K]) =>
     setDraft((d) => ({ ...d, [key]: value }))
+
+  /**
+   * Акт распознаётся сразу при загрузке, ещё до создания заявки: поля
+   * появляются в форме, и их можно поправить до сохранения. Документы Word
+   * и остальные заявки создаются уже после — заявке нужен номер в базе.
+   */
+  const recognizeAct = async (file: File) => {
+    setAktState({ kind: 'running', stage: 'Распознаю страницы', fileName: file.name })
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer())
+      const extract = await extractAct(file, file.name, actOptions, (done, total) =>
+        setAktState({ kind: 'running', stage: `Распознаю страницу ${done} из ${total}`, fileName: file.name }),
+      )
+      if (extract.devices.length === 0) throw new Error('В акте не распозналась ни одна позиция оборудования')
+
+      const filled = draftFromDevice(extract.devices[0], extract)
+      setDraft((d) => ({
+        ...d,
+        ...filled,
+        number: settings.aktNumberFromAct && extract.actNumber ? extract.actNumber : d.number,
+      }))
+      setAct({ file, bytes, extract })
+      setAktState({
+        kind: 'done',
+        result: { ai: extract.ai, extract, created: [], folder: null, savedFiles: [], attachedDocs: 0, warnings: [] },
+      })
+    } catch (e) {
+      setAktState({ kind: 'error', message: e instanceof Error ? e.message : 'Не удалось распознать акт' })
+    }
+  }
 
   const submit = async () => {
     if (!draft.equipment.trim()) {
@@ -44,7 +92,7 @@ export function RepairForm({ initial, onClose, onSubmit }: Props) {
     }
     setBusy(true)
     try {
-      await onSubmit({ ...draft, equipment: draft.equipment.trim(), number: draft.number.trim() }, pending)
+      await onSubmit({ ...draft, equipment: draft.equipment.trim(), number: draft.number.trim() }, pending, act ?? undefined)
       onClose()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Не удалось сохранить заявку')
@@ -135,6 +183,54 @@ export function RepairForm({ initial, onClose, onSubmit }: Props) {
         <Field label="Примечания">
           <textarea className="textarea" placeholder="Что сделано, что заказано, договорённости" value={draft.notes ?? ''} onChange={(e) => patch('notes', e.target.value)} />
         </Field>
+
+        {!initial && (
+          <div className="formFiles">
+            <h3 className="section__title" style={{ marginBottom: 8 }}>
+              <Icon name="scan" size={13} /> Входной акт
+            </h3>
+
+            {aktState && (
+              <ActPanel
+                state={aktState}
+                onClose={() => setAktState(null)}
+                onOpenFolder={() => undefined}
+              />
+            )}
+
+            {act ? (
+              <div className="doc">
+                <span className="doc__icon" style={{ ['--doc-color' as string]: KIND_COLOR[kindOf(act.file.name, act.file.type)] }}>
+                  <Icon name="scan" size={15} />
+                </span>
+                <span className="doc__body">
+                  <span className="doc__name">{act.file.name}</span>
+                  <span className="doc__meta">
+                    Распознано позиций: {act.extract.devices.length} · остальные станут отдельными заявками
+                  </span>
+                </span>
+                <span />
+                <button
+                  className="doc__act"
+                  onClick={() => { setAct(null); setAktState(null) }}
+                  title="Убрать акт"
+                  aria-label="Убрать акт"
+                >
+                  <Icon name="x" size={13} />
+                </button>
+              </div>
+            ) : (
+              <DropZone
+                accept=".pdf,image/*"
+                multiple={false}
+                disabled={aktState?.kind === 'running'}
+                onFiles={(files) => files[0] && void recognizeAct(files[0])}
+                title={aktState?.kind === 'running' ? 'Распознаю…' : 'Перетащите скан входного акта'}
+                hint="PDF или фото — поля заявки заполнятся сразу, до сохранения"
+              />
+            )}
+          </div>
+        )}
 
         <div className="formFiles">
           <h3 className="section__title" style={{ marginBottom: 8 }}>

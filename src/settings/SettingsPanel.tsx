@@ -6,6 +6,7 @@ import type { StampPosition } from './store'
 import { useSettings } from './store'
 import type { DateFormat } from '../lib/date'
 import { StatusBadge } from '../repairs/StatusBadge'
+import { ActSettings } from '../akt/ActSettings'
 
 function Row({ name, hint, children }: { name: string; hint?: string; children: React.ReactNode }) {
   return (
@@ -250,6 +251,8 @@ export function SettingsPanel() {
           </Button>
         </Row>
       </section>
+
+      <ActSettings />
 
       <section className="card">
         <h3 className="card__title">
